@@ -37,8 +37,10 @@ export async function generateStrategy() {
 
   const data = await response.json();
 
-  return {
-    question: data.question,
-    memories: data.memories,
-  };
+  if (data.error) {
+    throw new Error(data.error);
+  }
+
+  // Return the complete AI-generated strategy
+  return data;
 }

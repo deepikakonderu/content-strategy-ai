@@ -1,15 +1,16 @@
 import json
 import os
+from pathlib import Path
 from statistics import mean
 
 from dotenv import load_dotenv
 from groq import Groq
 
-from prompts import SYSTEM_PROMPT
+from .prompts import SYSTEM_PROMPT
 
 
 # Load environment variables from .env
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
 

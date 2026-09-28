@@ -3,12 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Sparkles,
   Brain,
-  HelpCircle,
   PlusCircle,
-  RotateCcw,
-  CheckCircle2,
-  Clock,
-  ArrowRight,
   Lightbulb,
   Layers
 } from 'lucide-react';
@@ -28,13 +23,17 @@ export default function Strategy({ onUpdatePostCount }) {
   const [toastMessage, setToastMessage] = useState('');
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
 
-  // Load existing posts from memory
+  // Load existing posts from backend
   const fetchPosts = async () => {
     setLoadingPosts(true);
+
     try {
       const data = await api.getPosts();
       setPosts(data);
-      if (onUpdatePostCount) onUpdatePostCount(data.length);
+
+      if (onUpdatePostCount) {
+        onUpdatePostCount(data.length);
+      }
     } catch (err) {
       console.error('Failed to load posts for strategy:', err);
     } finally {
@@ -46,7 +45,7 @@ export default function Strategy({ onUpdatePostCount }) {
     fetchPosts();
   }, []);
 
-  // Analysis step progression simulation for authentic agent feel
+  // Generate strategy using Hindsight memories + AI agent
   const handleGenerateStrategy = async () => {
     if (posts.length === 0) {
       setToastMessage('Add at least one post before generating strategy.');
@@ -56,23 +55,26 @@ export default function Strategy({ onUpdatePostCount }) {
     setAnalyzing(true);
     setAnalysisStep(1);
 
-    // Step 1: scan memory
+    // Step 1: recall memory
     setTimeout(() => {
       setAnalysisStep(2);
     }, 350);
 
-    // Step 2: compare patterns
+    // Step 2: detect patterns
     setTimeout(() => {
       setAnalysisStep(3);
     }, 700);
 
-    // Step 3: synthesize recommendation
+    // Step 3: generate recommendation
     setTimeout(async () => {
       try {
         const result = await api.generateStrategy();
+
         setStrategy(result);
         setHasGeneratedOnce(true);
-        setToastMessage('Strategy recommendation synthesized from memory!');
+        setToastMessage(
+          'Strategy recommendation synthesized from Hindsight memory!'
+        );
       } catch (err) {
         console.error('Error generating strategy:', err);
         setToastMessage('Could not generate strategy.');
@@ -85,6 +87,7 @@ export default function Strategy({ onUpdatePostCount }) {
 
   return (
     <div className="page-container strategy-page">
+
       {toastMessage && (
         <Toast
           message={toastMessage}
@@ -98,24 +101,37 @@ export default function Strategy({ onUpdatePostCount }) {
         <div className="strategy-header-bubble">
           <Brain size={22} />
         </div>
-        <h1 className="strategy-page-title">Content Strategist</h1>
+
+        <h1 className="strategy-page-title">
+          Content Strategist
+        </h1>
+
         <p className="strategy-page-subtitle">
           Ask what your content history says you should create next.
         </p>
       </section>
 
-      {/* Main Trigger Card: "What should I post next?" */}
+      {/* Main Trigger Card */}
       <section className="strategy-prompt-card">
         <div className="prompt-card-inner">
+
           <div className="prompt-card-question-box">
-            <span className="prompt-badge">Agent Prompt</span>
-            <h2 className="prompt-big-question">"What should I post next?"</h2>
+            <span className="prompt-badge">
+              Agent Prompt
+            </span>
+
+            <h2 className="prompt-big-question">
+              "What should I post next?"
+            </h2>
+
             <p className="prompt-explanation">
-              ContentMind will analyze your previous content and identify patterns in your content history.
+              ContentMind will recall your previous content from Hindsight
+              and use AI to identify patterns and recommend what to create next.
             </p>
           </div>
 
           <div className="prompt-action-wrap">
+
             <Button
               variant="primary"
               size="lg"
@@ -124,79 +140,147 @@ export default function Strategy({ onUpdatePostCount }) {
               disabled={analyzing || posts.length === 0}
               className="generate-strategy-btn"
             >
-              {analyzing ? 'Analyzing Memory...' : hasGeneratedOnce ? 'Regenerate Strategy' : 'Generate Strategy'}
+              {analyzing
+                ? 'Analyzing Memory...'
+                : hasGeneratedOnce
+                ? 'Regenerate Strategy'
+                : 'Generate Strategy'}
             </Button>
 
             <span className="prompt-stats-hint">
               Based on {posts.length} post{posts.length === 1 ? '' : 's'} in memory
             </span>
+
           </div>
         </div>
 
-        {/* Dynamic Analysis Progress indicator */}
+        {/* Dynamic Analysis Progress */}
         {analyzing && (
           <div className="analysis-progress-strip">
+
             <div className="analysis-indicator-row">
-              <span className={`progress-pill ${analysisStep >= 1 ? 'active' : ''}`}>
-                <span className="pill-dot"></span> 1. Reading content memory ({posts.length} entries)
+
+              <span
+                className={`progress-pill ${
+                  analysisStep >= 1 ? 'active' : ''
+                }`}
+              >
+                <span className="pill-dot"></span>
+                1. Reading Hindsight memory ({posts.length} entries)
               </span>
-              <span className={`progress-pill ${analysisStep >= 2 ? 'active' : ''}`}>
-                <span className="pill-dot"></span> 2. Detecting engagement velocity
+
+              <span
+                className={`progress-pill ${
+                  analysisStep >= 2 ? 'active' : ''
+                }`}
+              >
+                <span className="pill-dot"></span>
+                2. Detecting engagement patterns
               </span>
-              <span className={`progress-pill ${analysisStep >= 3 ? 'active' : ''}`}>
-                <span className="pill-dot"></span> 3. Synthesizing next optimal post
+
+              <span
+                className={`progress-pill ${
+                  analysisStep >= 3 ? 'active' : ''
+                }`}
+              >
+                <span className="pill-dot"></span>
+                3. Synthesizing next strategy
               </span>
+
             </div>
+
             <div className="analysis-loading-bar">
               <div
                 className="loading-bar-fill"
-                style={{ width: `${(analysisStep / 3) * 100}%` }}
+                style={{
+                  width: `${(analysisStep / 3) * 100}%`
+                }}
               ></div>
             </div>
+
           </div>
         )}
       </section>
 
-      {/* Layout Grid: Memory Visualization + Recommendation Result */}
+      {/* Memory + Recommendation */}
       <div className="strategy-content-layout">
-        {/* Memory Context Section (Hindsight integration visualizer) */}
+
+        {/* Memory Context */}
         <aside className="strategy-sidebar">
+
           <MemoryContext postCount={posts.length} />
 
-          {/* Quick Memory Stats snapshot */}
           <div className="memory-quick-stats">
-            <h4 className="quick-stats-title">Memory Signals</h4>
+
+            <h4 className="quick-stats-title">
+              Memory Signals
+            </h4>
+
             <div className="quick-stats-row">
-              <span className="quick-stat-label">Stored Posts</span>
-              <span className="quick-stat-val">{posts.length}</span>
-            </div>
-            <div className="quick-stats-row">
-              <span className="quick-stat-label">Total Views Analyzed</span>
+              <span className="quick-stat-label">
+                Stored Posts
+              </span>
+
               <span className="quick-stat-val">
-                {posts.reduce((s, p) => s + (Number(p.views) || 0), 0).toLocaleString()}
+                {posts.length}
               </span>
             </div>
+
             <div className="quick-stats-row">
-              <span className="quick-stat-label">Storage Target</span>
-              <span className="quick-stat-val">localStorage (MVP)</span>
+              <span className="quick-stat-label">
+                Total Views Analyzed
+              </span>
+
+              <span className="quick-stat-val">
+                {posts
+                  .reduce(
+                    (s, p) => s + (Number(p.views) || 0),
+                    0
+                  )
+                  .toLocaleString()}
+              </span>
             </div>
+
             <div className="quick-stats-row">
-              <span className="quick-stat-label">Planned Provider</span>
-              <span className="quick-stat-val text-accent">Hindsight AI</span>
+              <span className="quick-stat-label">
+                Storage Target
+              </span>
+
+              <span className="quick-stat-val">
+                Hindsight Memory
+              </span>
+            </div>
+
+            <div className="quick-stats-row">
+              <span className="quick-stat-label">
+                Memory Provider
+              </span>
+
+              <span className="quick-stat-val text-accent">
+                Active
+              </span>
             </div>
 
             <div className="sidebar-action-wrap">
-              <Link to="/add-content" className="sidebar-link-btn">
+
+              <Link
+                to="/add-content"
+                className="sidebar-link-btn"
+              >
                 <PlusCircle size={14} />
                 <span>Add more historical posts</span>
               </Link>
+
             </div>
+
           </div>
         </aside>
 
-        {/* Strategy Recommendation Output */}
+        {/* Strategy Recommendation */}
         <main className="strategy-main-area">
+
           {posts.length === 0 ? (
+
             <EmptyState
               icon={Layers}
               title="No content in memory"
@@ -204,30 +288,62 @@ export default function Strategy({ onUpdatePostCount }) {
               actionText="Add Previous Content"
               actionLink="/add-content"
             />
+
           ) : strategy ? (
+
             <StrategyCard
               strategy={strategy}
-              onCopyIdea={() => setToastMessage('Content idea copied to clipboard!')}
+              onCopyIdea={() =>
+                setToastMessage(
+                  'Content idea copied to clipboard!'
+                )
+              }
             />
+
           ) : (
+
             <div className="strategy-placeholder-card">
+
               <div className="placeholder-icon-wrap">
                 <Lightbulb size={36} />
               </div>
-              <h3 className="placeholder-title">Ready for Your Strategy Recommendation</h3>
+
+              <h3 className="placeholder-title">
+                Ready for Your Strategy Recommendation
+              </h3>
+
               <p className="placeholder-desc">
-                Click <strong>"Generate Strategy"</strong> above to trigger the ContentMind agent.
-                It will correlate views, likes, comments, and topics across your {posts.length} stored posts
-                to pinpoint what content you should produce next.
+                Click <strong>"Generate Strategy"</strong> above
+                to trigger the ContentMind agent.
+                It will recall Hindsight memories and correlate
+                views, likes, comments, and topics across your{' '}
+                {posts.length} stored posts to recommend what
+                content you should produce next.
               </p>
+
               <div className="placeholder-features-preview">
-                <div className="preview-chip">✓ Topic Recommendation</div>
-                <div className="preview-chip">✓ Concrete Headline Idea</div>
-                <div className="preview-chip">✓ Mathematical Reasoning</div>
-                <div className="preview-chip">✓ Historical Evidence</div>
+
+                <div className="preview-chip">
+                  ✓ Topic Recommendation
+                </div>
+
+                <div className="preview-chip">
+                  ✓ Concrete Headline Idea
+                </div>
+
+                <div className="preview-chip">
+                  ✓ AI Reasoning
+                </div>
+
+                <div className="preview-chip">
+                  ✓ Historical Evidence
+                </div>
+
               </div>
+
             </div>
           )}
+
         </main>
       </div>
     </div>

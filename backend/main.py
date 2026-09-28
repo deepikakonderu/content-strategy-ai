@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from hindsight_service import store_post, recall_content
+from backend.hindsight_service import store_post, recall_content
+from ai_agent.agent import generate_strategy
 
 
 app = FastAPI()
@@ -74,7 +75,7 @@ def get_memory():
 
 @app.get("/api/strategy")
 def get_strategy():
-    """Recall past performance for future content strategy."""
+    """Generate a content strategy using Hindsight memories and the AI agent."""
 
     try:
         memories = recall_content(
@@ -82,14 +83,17 @@ def get_strategy():
             "what topics and types of content should we consider posting next?"
         )
 
-        return {
-            "question": "What should we post next?",
-            "memories": memories
-        }
+        # Keep memory context small to reduce AI request size
+        memories = memories[:5]
+
+        strategy = generate_strategy(
+            posts=posts,
+            memories=memories
+        )
+
+        return strategy
 
     except Exception as e:
         return {
-            "question": "What should we post next?",
-            "memories": [],
             "error": str(e)
         }
