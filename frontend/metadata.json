@@ -1,0 +1,6 @@
+{
+  "name": "ContentMind",
+  "description": "Memory-Powered Content Strategy Agent that analyzes content history to recommend what to create next.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
