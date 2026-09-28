@@ -27,3 +27,18 @@ export async function addPost(postData) {
   const data = await response.json();
   return data.post;
 }
+
+export async function generateStrategy() {
+  const response = await fetch(`${API_BASE_URL}/api/strategy`);
+
+  if (!response.ok) {
+    throw new Error('Failed to generate strategy');
+  }
+
+  const data = await response.json();
+
+  return {
+    question: data.question,
+    memories: data.memories,
+  };
+}
